@@ -1,0 +1,18 @@
+# Java
+*.class
+
+# Archivos temporales
+*.swp
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Directorios de compilación
+target/
+build/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
