@@ -1,4 +1,9 @@
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 public class Main {
 
@@ -84,6 +89,10 @@ public class Main {
         scanner.close();
     }
 
+    // =========================================================
+    // ENCABEZADO
+    // =========================================================
+
     private static void mostrarEncabezado() {
 
         System.out.println(
@@ -100,6 +109,10 @@ public class Main {
 
         System.out.println();
     }
+
+    // =========================================================
+    // INICIO DE SESIÓN
+    // =========================================================
 
     private static void iniciarSesion(
             SistemaCitas sistema) {
@@ -155,6 +168,10 @@ public class Main {
         }
     }
 
+    // =========================================================
+    // MENÚ PRINCIPAL
+    // =========================================================
+
     private static void mostrarMenu() {
 
         System.out.println();
@@ -205,6 +222,10 @@ public class Main {
         }
     }
 
+    // =========================================================
+    // ALTA DE DOCTOR
+    // =========================================================
+
     private static void registrarDoctor(
             SistemaCitas sistema) {
 
@@ -214,12 +235,14 @@ public class Main {
         );
 
         String id =
-                leerTextoObligatorio(
-                        "ID del doctor: "
+                leerIdValido(
+                        "ID del doctor: ",
+                        "DOC"
                 );
 
         if (sistema.buscarDoctor(id) != null) {
 
+            System.out.println();
             System.out.println(
                     "Error: ya existe un doctor "
                             + "con el ID "
@@ -250,6 +273,10 @@ public class Main {
         sistema.registrarDoctor(doctor);
     }
 
+    // =========================================================
+    // ALTA DE PACIENTE
+    // =========================================================
+
     private static void registrarPaciente(
             SistemaCitas sistema) {
 
@@ -259,12 +286,14 @@ public class Main {
         );
 
         String id =
-                leerTextoObligatorio(
-                        "ID del paciente: "
+                leerIdValido(
+                        "ID del paciente: ",
+                        "PAC"
                 );
 
         if (sistema.buscarPaciente(id) != null) {
 
+            System.out.println();
             System.out.println(
                     "Error: ya existe un paciente "
                             + "con el ID "
@@ -288,6 +317,10 @@ public class Main {
 
         sistema.registrarPaciente(paciente);
     }
+
+    // =========================================================
+    // CREAR CITA
+    // =========================================================
 
     private static void crearCita(
             SistemaCitas sistema) {
@@ -324,12 +357,14 @@ public class Main {
         }
 
         String idCita =
-                leerTextoObligatorio(
-                        "ID de la cita: "
+                leerIdValido(
+                        "ID de la cita: ",
+                        "CIT"
                 );
 
         if (sistema.buscarCita(idCita) != null) {
 
+            System.out.println();
             System.out.println(
                     "Error: ya existe una cita "
                             + "con el ID "
@@ -341,14 +376,10 @@ public class Main {
         }
 
         String fecha =
-                leerTextoObligatorio(
-                        "Fecha (DD/MM/AAAA): "
-                );
+                leerFechaValida();
 
         String hora =
-                leerTextoObligatorio(
-                        "Hora (HH:MM): "
-                );
+                leerHoraValida();
 
         String motivo =
                 leerTextoObligatorio(
@@ -356,8 +387,9 @@ public class Main {
                 );
 
         String idDoctor =
-                leerTextoObligatorio(
-                        "ID del doctor: "
+                leerIdValido(
+                        "ID del doctor: ",
+                        "DOC"
                 );
 
         Doctor doctor =
@@ -365,6 +397,7 @@ public class Main {
 
         if (doctor == null) {
 
+            System.out.println();
             System.out.println(
                     "Error: no existe un doctor "
                             + "con el ID "
@@ -376,8 +409,9 @@ public class Main {
         }
 
         String idPaciente =
-                leerTextoObligatorio(
-                        "ID del paciente: "
+                leerIdValido(
+                        "ID del paciente: ",
+                        "PAC"
                 );
 
         Paciente paciente =
@@ -387,6 +421,7 @@ public class Main {
 
         if (paciente == null) {
 
+            System.out.println();
             System.out.println(
                     "Error: no existe un paciente "
                             + "con el ID "
@@ -421,6 +456,10 @@ public class Main {
         );
     }
 
+    // =========================================================
+    // VALIDACIÓN DE TEXTO
+    // =========================================================
+
     private static String leerTextoObligatorio(
             String mensaje) {
 
@@ -436,12 +475,155 @@ public class Main {
             if (valor.isEmpty()) {
 
                 System.out.println(
-                        "El campo no puede quedar vacío."
+                        "Error: el campo no puede quedar vacío."
                 );
             }
 
         } while (valor.isEmpty());
 
         return valor;
+    }
+
+    // =========================================================
+    // VALIDACIÓN DE IDENTIFICADORES
+    // =========================================================
+
+    private static String leerIdValido(
+            String mensaje,
+            String prefijo) {
+
+        while (true) {
+
+            String id =
+                    leerTextoObligatorio(mensaje)
+                            .toUpperCase();
+
+            if (id.matches(
+                    prefijo + "\\d{3}"
+            )) {
+
+                return id;
+            }
+
+            System.out.println();
+            System.out.println(
+                    "Error: el identificador debe tener "
+                            + "el formato "
+                            + prefijo
+                            + " seguido de tres números."
+            );
+
+            System.out.println(
+                    "Ejemplo válido: "
+                            + prefijo
+                            + "001"
+            );
+
+            System.out.println();
+        }
+    }
+
+    // =========================================================
+    // VALIDACIÓN DE FECHA
+    // =========================================================
+
+    private static String leerFechaValida() {
+
+        DateTimeFormatter formato =
+                DateTimeFormatter
+                        .ofPattern(
+                                "dd/MM/uuuu"
+                        )
+                        .withResolverStyle(
+                                ResolverStyle.STRICT
+                        );
+
+        while (true) {
+
+            String fecha =
+                    leerTextoObligatorio(
+                            "Fecha (DD/MM/AAAA): "
+                    );
+
+            try {
+
+                LocalDate.parse(
+                        fecha,
+                        formato
+                );
+
+                return fecha;
+
+            } catch (DateTimeParseException e) {
+
+                System.out.println();
+                System.out.println(
+                        "Error: la fecha ingresada "
+                                + "no es válida."
+                );
+
+                System.out.println(
+                        "Use el formato DD/MM/AAAA."
+                );
+
+                System.out.println(
+                        "Ejemplo válido: 15/10/2026"
+                );
+
+                System.out.println();
+            }
+        }
+    }
+
+    // =========================================================
+    // VALIDACIÓN DE HORA
+    // =========================================================
+
+    private static String leerHoraValida() {
+
+        DateTimeFormatter formato =
+                DateTimeFormatter
+                        .ofPattern(
+                                "HH:mm"
+                        )
+                        .withResolverStyle(
+                                ResolverStyle.STRICT
+                        );
+
+        while (true) {
+
+            String hora =
+                    leerTextoObligatorio(
+                            "Hora (HH:MM): "
+                    );
+
+            try {
+
+                LocalTime.parse(
+                        hora,
+                        formato
+                );
+
+                return hora;
+
+            } catch (DateTimeParseException e) {
+
+                System.out.println();
+                System.out.println(
+                        "Error: la hora ingresada "
+                                + "no es válida."
+                );
+
+                System.out.println(
+                        "Use el formato HH:MM de 24 horas."
+                );
+
+                System.out.println(
+                        "Ejemplo válido: 14:30"
+                );
+
+                System.out.println();
+            }
+        }
     }
 }
